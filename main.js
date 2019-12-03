@@ -7,12 +7,20 @@ import {Electron} from "/src/model/Electron.js"
 import {LonePair} from "/src/model/LonePair.js"
 
 
-var molecule = new Molecule;
-
+var molecule = new Molecule();
+var selectedAtoms = [];
 
 function buildInitialUI() {
     buildAddAtomTable();
     rerenderMolecule();
+
+    var singleBondCreator = document.getElementById('molecule-create-single-bond');
+
+    singleBondCreator.addEventListener('click', function() {
+        molecule.createBond(SingleBond, selectedAtoms[0], selectedAtoms[1]);
+        selectedAtoms = [];
+        rerenderMolecule();
+    });
 }
 
 function buildAddAtomTable() {
@@ -64,13 +72,41 @@ function rerenderMolecule() {
         }
     }
 
+    var bondCreatorCtr = document.getElementById('bond-creator');
+
     var atomsCtr = document.getElementById('molecule-atoms');
     atomsCtr.innerHTML = '';
-    molecule.atoms.forEach(atom => {
+    molecule.atoms.forEach((atom, i) => {
         atomsCtr.appendChild(tagTree('li', {}, [
             ['div', {}, [
-                ['b', {}, "Name: "],
-                ['span', {}, atom.symbol],
+                ['input', {
+                    'type': 'checkbox',
+                    'id': 'atom-' + i,
+                    'checked': selectedAtoms.indexOf(atom) != -1,
+                }, null, {
+                    'change': (e) => {
+                        var selectionIndex = selectedAtoms.indexOf(atom); 
+                        if (e.target.checked) {
+                            if (selectionIndex == -1) {
+                                selectedAtoms.push(atom);
+                            }
+                        } else {
+                            if (selectionIndex != -1) {
+                                selectedAtoms.splice(selectionIndex, 1);
+                            }
+                        }
+                        if (selectedAtoms.length == 2) {
+                            bondCreatorCtr.style.display = 'block';
+                        } else {
+                            bondCreatorCtr.style.display = 'none';
+                        }
+                    }
+                }],
+                ['label', {'for': 'atom-' + i}, atom.symbol],
+            ]],
+            ['div', {}, [
+                ['b', {}, "Charge: "],
+                ['span', {}, atom.getCharge()],
             ]],
             ['div', {}, [
                 ['b', {}, "Orbitals: "],
@@ -83,6 +119,10 @@ function rerenderMolecule() {
                         s = "\u21BF";
                     } else if (o[0].constructor == LonePair) {
                         s = "\u21C5";
+                    } else if (o[0].constructor == SingleBond) {
+                        s = "\u03c3";
+                    } else {
+                        s = o[0].constructor;
                     }
 
                     return ['div', {style: 'display: inline-block; border: 1px solid black;'}, [
@@ -95,20 +135,30 @@ function rerenderMolecule() {
     });
 }
 
-function tagTree(tagName, attrs, contents) {
+function tagTree(tagName, attrs, contents, listeners) {
     var t = document.createElement(tagName);
     for (var name in attrs) {
         var value = attrs[name];
-        t.setAttribute(name, value);
+        if (name == 'checked' && !value) {
+            // skip in this case cause "false" is truthy
+        } else {
+            t.setAttribute(name, value);
+        }
     }
     if (Array.isArray(contents)) {
         for (var i = 0; i < contents.length; i++) {
-            var [childTagName, childAttrs, childContents] = contents[i];
-            var child = tagTree(childTagName, childAttrs, childContents);
+            var [childTagName, childAttrs, childContents, childListeners] = contents[i];
+            var child = tagTree(childTagName, childAttrs, childContents, childListeners);
             t.appendChild(child);
         }
-    } else {
+    } else if(contents) {
         t.textContent = contents;
+    }
+
+    if (listeners) {
+        for (var k in listeners) {
+            t.addEventListener(k, listeners[k]);
+        }
     }
     return t;
 }
