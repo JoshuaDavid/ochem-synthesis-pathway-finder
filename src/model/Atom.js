@@ -111,6 +111,119 @@ class Atom {
         return charge;
     }
 
+    hasOrbital(orbitalName) {
+        return (orbitalName in this.orbitals);
+    }
+
+    hasEmptyOrbital(orbitalName) {
+        return this.hasOrbital(orbitalName)
+            && this.orbitals[orbitalName].length == 0;
+    }
+
+    getOrbitalContentType(orbitalName) {
+        if (!this.hasOrbital(orbitalName)) {
+            throw("cannot get content of orbital the atom does not have");
+        } else if (this.hasEmptyOrbital(orbitalName)) {
+            return null;
+        } else {
+            return this.orbitals[orbitalName][0].constructor;
+        }
+    }
+
+    canSP3Hybridize() {
+        for (var n = 2; n < 7; n++) {
+
+            var isUnhybridized = this.hasOrbital(n + 's')
+                && this.hasOrbital(n + 'px')
+                && this.hasOrbital(n + 'py')
+                && this.hasOrbital(n + 'pz');
+
+            if (isUnhybridized) {
+                // In order to sp3 hybridize, we need to have a
+                // lone pair in the s orbital and at least one empty
+                // p orbital
+                var hasSLonePair = this.getOrbitalContentType(n + 's') == LonePair;
+                var hasEmptyP = this.hasEmptyOrbital(n + 'px')
+                    || this.hasEmptyOrbital(n + 'py')
+                    || this.hasEmptyOrbital(n + 'pz');
+
+                if (hasSLonePair && hasEmptyP) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    sp3Hybridize() {
+        for (var n = 2; n < 7; n++) {
+            var s = n + 's',
+                px = n + 'px',
+                py = n + 'py',
+                pz = n + 'pz';
+
+            var isUnhybridized = this.hasOrbital(s)
+                && this.hasOrbital(px)
+                && this.hasOrbital(py)
+                && this.hasOrbital(pz);
+
+            if (isUnhybridized) {
+                // In order to sp3 hybridize, we need to have a
+                // lone pair in the s orbital and at least one empty
+                // p orbital
+                var hasSLonePair = this.getOrbitalContentType(s) == LonePair;
+                var firstEmptyP = this.hasEmptyOrbital(px) ? px
+                    : this.hasEmptyOrbital(py) ? py
+                    : this.hasEmptyOrbital(pz) ? pz
+                    : null;
+
+                var nonEmptyPs = firstEmptyP == px ? [py, pz]
+                    : firstEmptyP == py ? [px, pz]
+                    : firstEmptyP == pz ? [px, py]
+                    : null;
+
+                if (hasSLonePair && firstEmptyP) {
+                    var newOrbitals = [
+                        {type: n + 'sp3a', contents: [new Electron]},
+                        {type: n + 'sp3b', contents: [new Electron]},
+                        {type: n + 'sp3c', contents: this.orbitals[nonEmptyPs[0]]},
+                        {type: n + 'sp3d', contents: this.orbitals[nonEmptyPs[1]]},
+                    ];
+
+                    // Delete [ns] shell
+                    // Replace [np[xyz]] shell with [nsp3[abcd]]
+                    // note this may not get the energy levels exactly right, not
+                    // sure though
+                    this.electronShells = this.electronShells
+                        .map(es => {
+                            if (es.length == 0 || es[0].type[0] != n) {
+                                return es;
+                            } else if (es[0].type[0] == n && es[0].type[1] == 's') {
+                                // Delete [ns] shell
+                                return [];
+                            } else if (es[0].type[0] == n && es[0].type[1] == 'p') {
+                                // Replace [np[xyz]] shell with [nsp3[abcd]]
+                                return newOrbitals
+                            } else {
+                                return es;
+                            }
+                        })
+                        .filter(es => es.length > 0);
+
+                    delete this.orbitals[s];
+                    delete this.orbitals[px];
+                    delete this.orbitals[py];
+                    delete this.orbitals[pz];
+
+                    newOrbitals.forEach(({type, contents}) => {
+                        this.orbitals[type] = contents;
+                    });
+                }
+            }
+        }
+    }
+
     addElectron() {
         for (var i = 0; i < this.electronShells.length; i++) {
             var shell = this.electronShells[i];
