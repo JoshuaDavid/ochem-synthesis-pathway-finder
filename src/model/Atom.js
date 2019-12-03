@@ -98,6 +98,8 @@ class Atom {
                         charge -= 1;
                     } else if (x.constructor == LonePair) {
                         charge -= 2;
+                    } else if (x.constructor == SingleBond) {
+                        charge -= 1;
                     } else {
                         throw ("Unrecognized content of orbital: " + x.constructor);
                     }
@@ -130,6 +132,22 @@ class Atom {
         }
 
         throw new Exception("Not enough electron shells!");
+    }
+
+    applySingleBond(bond) {
+        for (var i = 0; i < this.electronShells.length; i++) {
+            var shell = this.electronShells[i];
+            for (var j = 0; j < shell.length; j++) {
+                var orbital = shell[j];
+                if (orbital.contents.length == 1 && orbital.contents[0].constructor == Electron) {
+                    orbital.contents.pop();
+                    orbital.contents.push(bond);
+                    return;
+                }
+            }
+        }
+
+        throw("No free electrons to replace with sigma bond");
     }
 }
 

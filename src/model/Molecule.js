@@ -25,6 +25,9 @@ class Molecule {
         }
 
         var bond = new SingleBond(atom1, atom2);
+        atom1.applySingleBond(bond)
+        atom2.applySingleBond(bond)
+
         this.bonds.push(bond);
     }
 }
