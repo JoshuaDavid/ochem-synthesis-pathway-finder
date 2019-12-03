@@ -21,6 +21,9 @@ function buildInitialUI() {
         selectedAtoms = [];
         rerenderMolecule();
     });
+
+    var rerenderBtn = document.getElementById('molecule-rerender');
+    rerenderBtn.addEventListener('click', () => rerenderMolecule());
 }
 
 function buildAddAtomTable() {
