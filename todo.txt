@@ -1,0 +1,19 @@
+sp3 hybridization
+test framework
+sp2 hybridization
+sp hybridization
+bond angles
+bond lengths
+xyz positions
+react
+2d layout attempts
+simple 2d rendering
+longest chain identification
+alkanes to IUPAC names
+IUPAC alkane names to molecules
+identical molecule testing
+chirality testing
+double bonds
+lewis structures
+chlorination reaction
+
