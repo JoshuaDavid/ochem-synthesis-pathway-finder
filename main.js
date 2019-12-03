@@ -151,7 +151,7 @@ function tagTree(tagName, attrs, contents, listeners) {
             var child = tagTree(childTagName, childAttrs, childContents, childListeners);
             t.appendChild(child);
         }
-    } else if(contents) {
+    } else if(typeof contents == 'number' || contents) {
         t.textContent = contents;
     }
 
