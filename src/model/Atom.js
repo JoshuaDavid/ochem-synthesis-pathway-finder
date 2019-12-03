@@ -1,6 +1,7 @@
 import {periodicData, periodicDataBy} from "/src/data/periodic-data.js";
 import {Electron} from "/src/model/Electron.js"
 import {LonePair} from "/src/model/LonePair.js"
+import {Bond, SingleBond, DoubleBond, TripleBond} from '/src/model/Bond.js';
 
 class Atom {
     constructor() {
@@ -91,8 +92,8 @@ class Atom {
             var shell = this.electronShells[i];
             for (var j = 0; j < shell.length; j++) {
                 var orbital = shell[j];
-                for (var k = 0; k < orbital.length; k++) {
-                    var x = orbital[k];
+                for (var k = 0; k < orbital.contents.length; k++) {
+                    var x = orbital.contents[k];
 
                     if (x.constructor == Electron) {
                         charge -= 1;
