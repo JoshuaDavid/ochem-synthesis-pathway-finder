@@ -166,4 +166,15 @@ function tagTree(tagName, attrs, contents, listeners) {
     return t;
 }
 
+molecule.atoms.push(new elements.Carbon);
+molecule.atoms.push(new elements.Hydrogen);
+molecule.atoms.push(new elements.Hydrogen);
+molecule.atoms.push(new elements.Hydrogen);
+molecule.atoms.push(new elements.Hydrogen);
+molecule.createBond(SingleBond, molecule.atoms[0], molecule.atoms[1]);
+molecule.createBond(SingleBond, molecule.atoms[0], molecule.atoms[2]);
+molecule.createBond(SingleBond, molecule.atoms[0], molecule.atoms[3]);
+molecule.createBond(SingleBond, molecule.atoms[0], molecule.atoms[4]);
+
 buildInitialUI();
+window.molecule = molecule;
