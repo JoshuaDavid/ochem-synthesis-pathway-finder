@@ -249,6 +249,7 @@ class Atom {
     }
 
     applySingleBond(bond) {
+        // Try to apply the bond first without hybridizing
         for (var i = 0; i < this.electronShells.length; i++) {
             var shell = this.electronShells[i];
             for (var j = 0; j < shell.length; j++) {
@@ -261,6 +262,13 @@ class Atom {
             }
         }
 
+        // If that fails, hybridize and apply the bond
+        if (this.canSP3Hybridize()) {
+            this.sp3Hybridize();
+            return this.applySingleBond(bond);
+        }
+
+        // If we can't hybridize, we can't create the bond
         throw("No free electrons to replace with sigma bond");
     }
 }
