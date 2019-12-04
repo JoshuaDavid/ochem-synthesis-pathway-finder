@@ -1,0 +1,22 @@
+{
+  "name": "ochem-synthesis-pathway-finder",
+  "version": "0.0.1",
+  "description": "Synthesis pathway finder and collection of tools to work with and model organic molecules",
+  "main": "main.js",
+  "module": "_main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ";"
+  },
+  "author": "Josh David <joshuad93@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^6.2.2"
+  },
+  "dependencies": {
+    "esm": "^3.2.25"
+  }
+}
